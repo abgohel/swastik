@@ -1863,3 +1863,42 @@ ul {
     font-size: 1.05rem;
     box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
 }
+
+/* ===== Mobile Floating Bar Fix ===== */
+@media (max-width: 480px) {
+    .mobile-actions {
+        padding: 10px 12px;
+        padding-bottom: max(10px, env(safe-area-inset-bottom));
+        background: rgba(15, 23, 42, 0.98);
+        /* Ensure opaque background */
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+        /* Reduce gap */
+        width: 100%;
+    }
+
+    .action-btn {
+        flex: 1;
+        /* Equal width */
+        min-width: 0;
+        /* Allow shrinking */
+        padding: 10px 4px;
+        /* Minimal side padding */
+        font-size: 0.8rem;
+        /* Smaller font */
+        justify-content: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .action-btn svg,
+    .action-btn .icon {
+        margin-right: 4px;
+        /* Tighter icon spacing */
+        font-size: 1.1rem;
+    }
+}
