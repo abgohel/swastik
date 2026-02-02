@@ -1973,4 +1973,9 @@ ul {
             white-space: normal;
         }
     }
+
+    /* Fix Card Padding on Mobile */
+    .opd-card {
+        padding: var(--space-lg);
+    }
 }
