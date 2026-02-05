@@ -700,6 +700,63 @@
     </div>
 
     <script src="script.js"></script>
+
+    <!-- Smooth Parallax Scrolling -->
+    <style>
+        html { scroll-behavior: smooth; }
+        .scroll-reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease-out, transform 0.8s ease-out; }
+        .scroll-reveal.revealed { opacity: 1; transform: translateY(0); }
+        .hero { position: relative; overflow: hidden; }
+        .hero-text-content, .hero-visual { transition: transform 0.1s ease-out, opacity 0.1s ease-out; }
+        .highlight-card, .service-card, .doctor-card, .testimonial-card { transition: transform 0.3s ease-out; }
+    </style>
+
+    <script>
+    (function() {
+        'use strict';
+        const hero = document.querySelector('.hero');
+        const heroText = document.querySelector('.hero-text-content');
+        const heroVisual = document.querySelector('.hero-visual');
+        const revealElements = document.querySelectorAll('.highlight-card, .service-card, .doctor-card, .testimonial-card, .about-card, .opd-card, .feature-card');
+        
+        revealElements.forEach(el => el.classList.add('scroll-reveal'));
+        
+        function throttle(func, limit) {
+            let inThrottle;
+            return function() {
+                if (!inThrottle) { func.apply(this, arguments); inThrottle = true; setTimeout(() => inThrottle = false, limit); }
+            }
+        }
+        
+        function handleScroll() {
+            const scrolled = window.pageYOffset;
+            const windowHeight = window.innerHeight;
+            
+            if (hero && scrolled < windowHeight) {
+                if (heroText) {
+                    heroText.style.transform = `translateY(${scrolled * 0.25}px)`;
+                    heroText.style.opacity = Math.max(0, 1 - (scrolled / (windowHeight * 0.7)));
+                }
+                if (heroVisual) {
+                    heroVisual.style.transform = `translateY(${scrolled * 0.15}px) scale(${1 + scrolled * 0.0001})`;
+                }
+            }
+            
+            revealElements.forEach(el => {
+                const elementTop = el.getBoundingClientRect().top;
+                if (elementTop < windowHeight - 80) el.classList.add('revealed');
+            });
+        }
+        
+        window.addEventListener('scroll', throttle(handleScroll, 16));
+        handleScroll();
+        
+        if (window.innerWidth < 768) {
+            if (heroText) heroText.style.transform = 'none';
+            if (heroVisual) heroVisual.style.transform = 'none';
+        }
+    })();
+    </script>
 </body>
 
 </html>
