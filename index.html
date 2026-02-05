@@ -701,59 +701,71 @@
 
     <script src="script.js"></script>
 
-    <!-- Smooth Parallax Scrolling -->
+    <!-- Smooth Scroll & Reveal (Mobile Optimized) -->
     <style>
         html { scroll-behavior: smooth; }
-        .scroll-reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease-out, transform 0.8s ease-out; }
+        .scroll-reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
         .scroll-reveal.revealed { opacity: 1; transform: translateY(0); }
-        .hero { position: relative; overflow: hidden; }
-        .hero-text-content, .hero-visual { transition: transform 0.1s ease-out, opacity 0.1s ease-out; }
-        .highlight-card, .service-card, .doctor-card, .testimonial-card { transition: transform 0.3s ease-out; }
+        
+        /* Only enable parallax on desktop */
+        @media (min-width: 769px) and (prefers-reduced-motion: no-preference) {
+            .hero-text-content, .hero-visual { 
+                will-change: transform, opacity;
+                transition: transform 0.15s linear, opacity 0.15s linear; 
+            }
+        }
     </style>
 
     <script>
     (function() {
         'use strict';
-        const hero = document.querySelector('.hero');
-        const heroText = document.querySelector('.hero-text-content');
-        const heroVisual = document.querySelector('.hero-visual');
-        const revealElements = document.querySelectorAll('.highlight-card, .service-card, .doctor-card, .testimonial-card, .about-card, .opd-card, .feature-card');
         
+        // Only run parallax on desktop
+        const isMobile = window.innerWidth < 769 || 'ontouchstart' in window;
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        
+        const revealElements = document.querySelectorAll('.highlight-card, .service-card, .doctor-card, .testimonial-card, .about-card, .opd-card, .feature-card');
         revealElements.forEach(el => el.classList.add('scroll-reveal'));
         
-        function throttle(func, limit) {
-            let inThrottle;
-            return function() {
-                if (!inThrottle) { func.apply(this, arguments); inThrottle = true; setTimeout(() => inThrottle = false, limit); }
-            }
-        }
-        
-        function handleScroll() {
-            const scrolled = window.pageYOffset;
-            const windowHeight = window.innerHeight;
-            
-            if (hero && scrolled < windowHeight) {
-                if (heroText) {
-                    heroText.style.transform = `translateY(${scrolled * 0.25}px)`;
-                    heroText.style.opacity = Math.max(0, 1 - (scrolled / (windowHeight * 0.7)));
+        // Simple reveal on scroll (works everywhere)
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('revealed');
                 }
-                if (heroVisual) {
-                    heroVisual.style.transform = `translateY(${scrolled * 0.15}px) scale(${1 + scrolled * 0.0001})`;
-                }
-            }
-            
-            revealElements.forEach(el => {
-                const elementTop = el.getBoundingClientRect().top;
-                if (elementTop < windowHeight - 80) el.classList.add('revealed');
             });
-        }
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
         
-        window.addEventListener('scroll', throttle(handleScroll, 16));
-        handleScroll();
+        revealElements.forEach(el => observer.observe(el));
         
-        if (window.innerWidth < 768) {
-            if (heroText) heroText.style.transform = 'none';
-            if (heroVisual) heroVisual.style.transform = 'none';
+        // Parallax only on desktop (no touch)
+        if (!isMobile && !prefersReducedMotion) {
+            const heroText = document.querySelector('.hero-text-content');
+            const heroVisual = document.querySelector('.hero-visual');
+            let ticking = false;
+            
+            function updateParallax() {
+                const scrolled = window.pageYOffset;
+                const windowHeight = window.innerHeight;
+                
+                if (scrolled < windowHeight) {
+                    if (heroText) {
+                        heroText.style.transform = `translateY(${scrolled * 0.2}px)`;
+                        heroText.style.opacity = Math.max(0, 1 - (scrolled / (windowHeight * 0.8)));
+                    }
+                    if (heroVisual) {
+                        heroVisual.style.transform = `translateY(${scrolled * 0.1}px)`;
+                    }
+                }
+                ticking = false;
+            }
+            
+            window.addEventListener('scroll', () => {
+                if (!ticking) {
+                    requestAnimationFrame(updateParallax);
+                    ticking = true;
+                }
+            }, { passive: true });
         }
     })();
     </script>
